@@ -1,0 +1,58 @@
+---
+import { getSession } from "auth-astro/server";
+import Layout from "../layouts/Layout.astro";
+import { SignIn, SignOut } from "auth-astro/components";
+
+const session = await getSession(Astro.request);
+---
+
+<Layout title="Welcome to Astro.">
+	<main>
+		<h1>Hola padre</h1>
+		{
+			session ? (
+				<>
+					<h1>Hola {session.user.name.split(" ")[0]}</h1>
+					<SignOut>Salir</SignOut>
+					<section>
+						<input type="text" />
+						<button id="createTrip">Crear viaje</button>
+					</section>
+				</>
+			) : (
+				<SignIn provider="google">Iniciar sesion</SignIn>
+			)
+		}
+	</main>
+</Layout>
+<script>
+	document
+		.getElementById("createTrip")
+		.addEventListener("click", async () => {
+			const tripId = "trip-" + Math.random().toString(36).substr(2, 9);
+			console.log(tripId);
+			const response = await fetch(`/api/trip/${tripId}`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					name: "Viaje a la luna",
+				}),
+			});
+			const data = await response.json();
+			console.log(data);
+		});
+</script>
+
+<style>
+	main {
+		margin: auto;
+		padding: 1rem;
+		width: 800px;
+		max-width: calc(100% - 2rem);
+		color: white;
+		font-size: 20px;
+		line-height: 1.6;
+	}
+</style>
